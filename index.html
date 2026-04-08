@@ -3,430 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FX Bias Trading Coach</title>
+<title>Trading Coach TP Decision</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 :root,[data-theme="light"]{
-  --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#fbfbf9;
-  --color-surface-offset:#f3f0ec;--color-border:#d4d1ca;--color-divider:#dcd9d5;
-  --color-text:#28251d;--color-text-muted:#7a7974;--color-text-faint:#bab9b4;
-  --color-primary:#01696f;--color-primary-hover:#0c4e54;
-  --color-success:#437a22;--color-success-bg:#d4dfcc;
-  --color-error:#a12c7b;--color-error-bg:#e0ced7;
-  --color-warning:#964219;--color-warning-bg:#ddcfc6;
-  --color-gold:#b07a00;--color-gold-bg:#e9e0c6;
-  --shadow-md:0 4px 12px oklch(0.2 0.01 80/0.08);
-  --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;--radius-xl:1rem;--radius-full:9999px;
-  --sp1:.25rem;--sp2:.5rem;--sp3:.75rem;--sp4:1rem;--sp5:1.25rem;--sp6:1.5rem;--sp8:2rem;
-  --tx-xs:clamp(.75rem,.7rem + .25vw,.875rem);--tx-sm:clamp(.875rem,.8rem + .35vw,1rem);
-  --tx-base:clamp(1rem,.95rem + .25vw,1.125rem);
-  --ease:180ms cubic-bezier(0.16,1,0.3,1);
+--bg:#f7f6f2;--surface:#f9f8f5;--surface-2:#fbfbf9;--offset:#f3f0ec;--border:#d4d1ca;--divider:#dcd9d5;
+--text:#28251d;--muted:#7a7974;--primary:#01696f;--primary-bg:#cedcd8;--success:#437a22;--success-bg:#d4dfcc;--error:#a12c7b;--error-bg:#e0ced7;--warn:#d19900;--warn-bg:#e9e0c6;
 }
 [data-theme="dark"]{
-  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
-  --color-surface-offset:#222120;--color-border:#393836;--color-divider:#2a2928;
-  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
-  --color-primary:#4f98a3;--color-primary-hover:#227f8b;
-  --color-success:#6daa45;--color-success-bg:#2a3a26;
-  --color-error:#d163a7;--color-error-bg:#3d2b38;
-  --color-warning:#bb653b;--color-warning-bg:#3d2e25;
-  --color-gold:#e8af34;--color-gold-bg:#4d4332;
-  --shadow-md:0 4px 12px oklch(0 0 0/.3);
+--bg:#171614;--surface:#1c1b19;--surface-2:#201f1d;--offset:#1d1c1a;--border:#393836;--divider:#262523;
+--text:#cdccca;--muted:#8a8884;--primary:#4f98a3;--primary-bg:#313b3b;--success:#6daa45;--success-bg:#3a4435;--error:#d163a7;--error-bg:#4c3d46;--warn:#e8af34;--warn-bg:#4d4332;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
-body{min-height:100dvh;font-family:'Satoshi',system-ui,sans-serif;font-size:var(--tx-base);color:var(--color-text);background:var(--color-bg);display:flex;flex-direction:column;align-items:center;padding:var(--sp6) var(--sp4) var(--sp8);transition:background var(--ease),color var(--ease)}
-button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:var(--radius-sm)}
-.app{width:100%;max-width:540px;display:flex;flex-direction:column;gap:var(--sp5)}
-
-/* Header */
-.header{display:flex;align-items:center;justify-content:space-between;padding:var(--sp4) var(--sp5);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-md)}
-.header-logo{display:flex;align-items:center;gap:var(--sp3)}
-.logo-text{display:flex;flex-direction:column;line-height:1.2}
-.logo-title{font-size:var(--tx-sm);font-weight:700}
-.logo-sub{font-size:var(--tx-xs);color:var(--color-text-muted)}
-.theme-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-full);background:var(--color-surface-offset);color:var(--color-text-muted);border:1px solid var(--color-border);transition:color var(--ease),background var(--ease)}
-.theme-btn:hover{color:var(--color-text);background:var(--color-border)}
-
-/* Card */
-.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-md);overflow:hidden}
-.card-header{padding:var(--sp3) var(--sp5);border-bottom:1px solid var(--color-divider);display:flex;align-items:center;gap:var(--sp2)}
-.card-header-title{font-size:var(--tx-xs);font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em}
-.card-body{padding:var(--sp5)}
-
-/* Questions */
-.questions-wrap{display:flex;flex-direction:column;gap:var(--sp4)}
-.q-block{display:flex;flex-direction:column;gap:var(--sp2)}
-.q-num{font-size:var(--tx-xs);font-weight:700;color:var(--color-primary);text-transform:uppercase;letter-spacing:.07em}
-.q-label{font-size:var(--tx-base);font-weight:500;line-height:1.4}
-.btn-group{display:flex;flex-wrap:wrap;gap:var(--sp2);padding-top:var(--sp1)}
-.btn-opt{padding:var(--sp2) var(--sp3);border-radius:var(--radius-full);border:1.5px solid var(--color-border);font-size:var(--tx-sm);font-weight:500;color:var(--color-text-muted);background:var(--color-surface-offset);min-height:40px;transition:border-color var(--ease),color var(--ease),background var(--ease)}
-.btn-opt:hover{border-color:var(--color-primary);color:var(--color-primary);background:var(--color-surface-2)}
-.btn-opt.sel{border-color:var(--color-primary);color:var(--color-primary);background:color-mix(in oklch,var(--color-primary) 14%,var(--color-surface))}
-.divider{height:1px;background:var(--color-divider)}
-.btn-eval{width:100%;padding:var(--sp3) var(--sp5);border-radius:var(--radius-lg);background:var(--color-primary);color:#fff;font-size:var(--tx-sm);font-weight:700;letter-spacing:.03em;min-height:48px;transition:background var(--ease),opacity var(--ease)}
-.btn-eval:hover:not(:disabled){background:var(--color-primary-hover)}
-.btn-eval:disabled{opacity:.4;cursor:not-allowed}
-.btn-reset{width:100%;padding:var(--sp2) var(--sp5);border-radius:var(--radius-lg);border:1.5px solid var(--color-border);color:var(--color-text-muted);font-size:var(--tx-sm);font-weight:500;min-height:44px;background:transparent;transition:border-color var(--ease),color var(--ease)}
-.btn-reset:hover{border-color:var(--color-primary);color:var(--color-primary)}
-
-/* Result */
-.result-card{display:none;flex-direction:column;gap:var(--sp4)}
-.result-card.vis{display:flex}
-.verdict{padding:var(--sp4) var(--sp5);border-radius:var(--radius-lg);display:flex;align-items:flex-start;gap:var(--sp3);font-weight:700;font-size:var(--tx-base)}
-.verdict.green{background:var(--color-success-bg);color:var(--color-success)}
-.verdict.red{background:var(--color-error-bg);color:var(--color-error)}
-.verdict-icon{font-size:1.1em;flex-shrink:0;margin-top:.1em}
-
-/* Action items in result */
-.action-list{display:flex;flex-direction:column;gap:var(--sp3)}
-.action-item{display:flex;align-items:flex-start;gap:var(--sp3);padding:var(--sp3) var(--sp4);border-radius:var(--radius-md);font-size:var(--tx-sm);line-height:1.6}
-.action-item.error{background:var(--color-error-bg);border-left:3px solid var(--color-error)}
-.action-item.warning{background:var(--color-warning-bg);border-left:3px solid var(--color-warning)}
-.action-item.gold{background:var(--color-gold-bg);border-left:3px solid var(--color-gold)}
-.action-item.info{background:var(--color-surface-offset);border-left:3px solid var(--color-primary)}
-.action-label{font-size:var(--tx-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:var(--sp1);display:block}
-.action-text{color:var(--color-text)}
-
-/* Meta chips */
-.meta-row{display:flex;flex-wrap:wrap;gap:var(--sp2)}
-.meta-chip{padding:var(--sp1) var(--sp3);border-radius:var(--radius-full);background:var(--color-surface-offset);font-size:var(--tx-xs);font-weight:500;color:var(--color-text-muted);border:1px solid var(--color-border)}
-.meta-chip strong{color:var(--color-text)}
-
-/* Checklist */
-.cl{display:flex;flex-direction:column;gap:0}
-.cl-row{display:flex;align-items:center;gap:var(--sp3);font-size:var(--tx-sm);padding:var(--sp2) 0;border-bottom:1px solid var(--color-divider)}
-.cl-row:last-child{border-bottom:none}
-.cl-icon{font-size:.85rem;width:1.2em;text-align:center;flex-shrink:0;font-weight:700}
-.cl-row.done{color:var(--color-text)}
-.cl-row.done .cl-icon{color:var(--color-success)}
-.cl-row.fail{color:var(--color-text-muted)}
-.cl-row.fail .cl-icon{color:var(--color-error)}
-
-.ts{font-size:var(--tx-xs);color:var(--color-text-faint);text-align:center;padding:var(--sp2) 0}
-.no-actions{font-size:var(--tx-sm);color:var(--color-text-muted);font-style:italic;padding:var(--sp2) 0}
+*{box-sizing:border-box}html{-webkit-font-smoothing:antialiased}body{margin:0;font-family:'Satoshi',system-ui,sans-serif;background:var(--bg);color:var(--text)} button{font:inherit}
+.app{max-width:760px;margin:0 auto;padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border-radius:14px;background:var(--primary-bg);display:grid;place-items:center;color:var(--primary);font-weight:800}
+.h1{font-size:28px;font-weight:800;line-height:1.05}.sub{font-size:13px;color:var(--muted);margin-top:3px}
+.theme{width:40px;height:40px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.progress-wrap{margin:8px 0 18px}.progress-head{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}.bar{height:6px;border-radius:999px;background:var(--offset);overflow:hidden}.fill{height:100%;width:0;background:var(--primary);transition:width .25s ease}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.step{display:none}.step.active{display:block}.step-no{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700}.q{font-size:24px;font-weight:800;line-height:1.15;margin-bottom:8px}.hint{font-size:14px;color:var(--muted);margin-bottom:18px}
+.options{display:grid;gap:10px}.option,.pill{border:1.5px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:16px;padding:14px 16px;text-align:left;cursor:pointer;transition:.2s ease;min-height:52px}.option:hover,.pill:hover{border-color:var(--primary)}.option.selected,.pill.selected{border-color:var(--primary);background:var(--primary-bg);color:var(--primary);font-weight:700}
+.option small{display:block;color:var(--muted);font-weight:500;margin-top:3px}.option.selected small{color:var(--primary)}
+.wave-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px}.btn{border:none;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer}.btn.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}.btn.primary{background:var(--primary);color:white}.btn.primary:disabled{opacity:.35;cursor:not-allowed}
+.emotion-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:14px;background:var(--surface-2);color:var(--text);font-size:14px;font-family:inherit;resize:vertical;min-height:70px;margin-top:10px}
+.result{display:none}.result.active{display:block}.verdict{padding:18px;border-radius:18px;border:1px solid var(--border);margin-bottom:14px}.verdict.green{background:var(--success-bg);border-color:var(--success)}.verdict.red{background:var(--error-bg);border-color:var(--error)}.verdict.yellow{background:var(--warn-bg);border-color:var(--warn)}
+.big{font-size:28px;font-weight:900;line-height:1.05;margin-bottom:6px}.msg{font-size:15px}
+.box{padding:16px;border-radius:16px;border:1px solid var(--border);background:var(--surface-2);margin-top:12px}.box h3{margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--divider);font-size:14px}.line:first-child{border-top:none;padding-top:0}.line b{font-size:15px}
+.alert{padding:14px 16px;border-radius:16px;border:1px solid var(--border);margin-top:12px;font-size:14px;line-height:1.55}.alert.red{background:var(--error-bg);border-color:var(--error)}.alert.yellow{background:var(--warn-bg);border-color:var(--warn)}.alert strong{display:block;margin-bottom:4px}
+.emotion-result{padding:16px;border-radius:16px;border:1px solid var(--border);background:var(--surface-2);margin-top:12px}
+.emotion-result h3{margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.emotion-tip{padding:10px 0;border-top:1px solid var(--divider);font-size:14px;line-height:1.55}.emotion-tip:first-of-type{border-top:none;padding-top:0}
+.footer-note{margin-top:14px;font-size:13px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.code-box{margin-top:14px;padding:14px 16px;border:1px dashed var(--border);border-radius:16px;background:var(--surface-2);font-size:13px;color:var(--muted)}
+@media(max-width:640px){.app{padding:14px}.card{padding:16px}.q{font-size:21px}.wave-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.h1{font-size:24px}}
 </style>
 </head>
 <body>
 <div class="app">
-
-  <header class="header">
-    <div class="header-logo">
-      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-label="FX Bias Trading Coach">
-        <rect width="34" height="34" rx="8" fill="var(--color-primary)" opacity=".15"/>
-        <polyline points="5,25 11,17 17,21 23,9 29,13" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <circle cx="29" cy="13" r="2.2" fill="var(--color-primary)"/>
-      </svg>
-      <div class="logo-text">
-        <span class="logo-title">FX Bias Trading Coach</span>
-        <span class="logo-sub">EURUSD · 30M</span>
-      </div>
-    </div>
-    <button class="theme-btn" id="theme-btn" aria-label="Přepnout téma">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-  </header>
-
-  <!-- Form -->
-  <div class="card" id="form-card">
-    <div class="card-header">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      <span class="card-header-title">Pre-Trade Checklist</span>
-    </div>
-    <div class="card-body">
-      <div class="questions-wrap">
-
-        <div class="q-block">
-          <div class="q-num">Otázka 1</div>
-          <div class="q-label">Zkontrolováno s Canvou?</div>
-          <div class="btn-group" data-q="q1">
-            <button class="btn-opt" data-val="ANO">✅ ANO</button>
-            <button class="btn-opt" data-val="NE">❌ NE</button>
-          </div>
-        </div>
-        <div class="divider"></div>
-
-        <div class="q-block">
-          <div class="q-num">Otázka 2</div>
-          <div class="q-label">V jakém druhu P.A. jsme?</div>
-          <div class="btn-group" data-q="q2">
-            <button class="btn-opt" data-val="WAVE">📊 WAVE</button>
-            <button class="btn-opt" data-val="EXT">🚀 EXT</button>
-            <button class="btn-opt" data-val="RANGE">↔️ RANGE</button>
-          </div>
-        </div>
-        <div class="divider"></div>
-
-        <div class="q-block">
-          <div class="q-num">Otázka 3</div>
-          <div class="q-label">Kolikátá je v trendu vlna?</div>
-          <div class="btn-group" data-q="q3">
-            <button class="btn-opt" data-val="1">1</button>
-            <button class="btn-opt" data-val="2">2</button>
-            <button class="btn-opt" data-val="3">3</button>
-            <button class="btn-opt" data-val="4">4</button>
-            <button class="btn-opt" data-val="5">5</button>
-            <button class="btn-opt" data-val="6">6</button>
-            <button class="btn-opt" data-val="7">7</button>
-            <button class="btn-opt" data-val="8">8</button>
-            <button class="btn-opt" data-val="8+">8+</button>
-          </div>
-        </div>
-        <div class="divider"></div>
-
-        <div class="q-block">
-          <div class="q-num">Otázka 4</div>
-          <div class="q-label">Kolik svíček v trendu běží?</div>
-          <div class="btn-group" data-q="q4">
-            <button class="btn-opt" data-val="1-24">1–24</button>
-            <button class="btn-opt" data-val="25-48">25–48</button>
-            <button class="btn-opt" data-val="49-120">49–120</button>
-            <button class="btn-opt" data-val="120+">120+</button>
-          </div>
-        </div>
-        <div class="divider"></div>
-
-        <div class="q-block">
-          <div class="q-num">Otázka 5</div>
-          <div class="q-label">TP nastaveno limitním příkazem dle strategie?</div>
-          <div class="btn-group" data-q="q5">
-            <button class="btn-opt" data-val="ANO">✅ ANO</button>
-            <button class="btn-opt" data-val="NE">❌ NE</button>
-            <button class="btn-opt" data-val="ZATIM">⏸ Zatím neřeším TP</button>
-          </div>
-        </div>
-        <div class="divider"></div>
-
-        <div class="q-block">
-          <div class="q-num">Otázka 6</div>
-          <div class="q-label">Dodržel jsem strategii?</div>
-          <div class="btn-group" data-q="q6">
-            <button class="btn-opt" data-val="ANO">✅ ANO</button>
-            <button class="btn-opt" data-val="NE">❌ NE</button>
-          </div>
-        </div>
-        <div class="divider"></div>
-
-        <div class="q-block">
-          <div class="q-num">Otázka 7</div>
-          <div class="q-label">Provedl jsi záznam?</div>
-          <div class="btn-group" data-q="q7">
-            <button class="btn-opt" data-val="ANO">✅ ANO</button>
-            <button class="btn-opt" data-val="NE">❌ NE</button>
-            <button class="btn-opt" data-val="NA">N/A</button>
-          </div>
-        </div>
-        <div class="divider"></div>
-
-        <button class="btn-eval" id="eval-btn" disabled>Vyhodnotit →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Result -->
-  <div class="card result-card" id="result-card">
-    <div class="card-header">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      <span class="card-header-title">Výsledek</span>
-    </div>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:var(--sp4)">
-      <p class="ts" id="ts"></p>
-      <div id="verdict" class="verdict green">
-        <span class="verdict-icon" id="v-icon">✅</span>
-        <span id="v-text">GREEN</span>
-      </div>
-      <div class="meta-row" id="meta"></div>
-      <div id="actions-wrap" style="display:none">
-        <div class="action-list" id="action-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Checklist -->
-  <div class="card" id="checklist-card" style="display:none">
-    <div class="card-header">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      <span class="card-header-title">Checklist</span>
-    </div>
-    <div class="card-body">
-      <div class="cl" id="checklist"></div>
-    </div>
-  </div>
-
-  <button class="btn-reset" id="reset-btn" style="display:none">🔄 Nový checklist</button>
-
+<div class="header">
+<div class="brand"><div class="logo">TP</div><div><div class="h1">Trading Coach TP Decision</div><div class="sub">Checklist pro rozhodnutí: Brát TP / Nebrat TP</div></div></div>
+<button class="theme" id="themeBtn" aria-label="Přepnout téma">☾</button>
 </div>
-
+<div class="progress-wrap"><div class="progress-head"><span id="progressLabel">Krok 1 z 7</span><span id="progressPct">0%</span></div><div class="bar"><div class="fill" id="progressFill"></div></div></div>
+<div class="card">
+<section class="step active" data-step="1">
+<div class="step-no">Krok 1 · Kontext</div>
+<div class="q">Jaký je aktuální typ P.A.?</div>
+<div class="hint">Urči kontext přesně podle strategie, ne pocitově.</div>
+<div class="options">
+<button class="option" data-value="WAVE">📊 WAVE<small>Normální trend s korekcemi</small></button>
+<button class="option" data-value="EXT">🚀 EXT<small>Silný pohyb bez korekce</small></button>
+<button class="option" data-value="RANGE">⇔ RANGE<small>Konsolidace / rozptí</small></button>
+</div>
+</section>
+<section class="step" data-step="2">
+<div class="step-no">Krok 2 · BOS</div>
+<div class="q">Došlo k BOS (Break of Structure)?</div>
+<div class="hint">BOS = okamžitý TP trigger. Pokud ano, ber TP.</div>
+<div class="options">
+<button class="option" data-value="yes">✅ ANO — došlo k BOS</button>
+<button class="option" data-value="no">❌ NE — trend pokračuje</button>
+</div>
+</section>
+<section class="step" data-step="3">
+<div class="step-no">Krok 3 · Vlna</div>
+<div class="q">Kolikátá je aktuální vlna?</div>
+<div class="hint">Počítej od BOS podle pravidel, ne vizuálně.</div>
+<div class="wave-grid" id="waveGrid"></div>
+</section>
+<section class="step" data-step="4">
+<div class="step-no">Krok 4 · Délka trendu</div>
+<div class="q">Kolik svíček běží trend od BOS?</div>
+<div class="hint">Důležité kvůli 123 EXT a pozdní fázi trendu.</div>
+<div class="options">
+<button class="option" data-value="1-48">1—48<small>Brzy v trendu</small></button>
+<button class="option" data-value="49-120">49—120<small>Středně rozvinutý trend</small></button>
+<button class="option" data-value="120+">120+<small>Pozdní trend, TP pravidla přísnější</small></button>
+</div>
+</section>
+<section class="step" data-step="5">
+<div class="step-no">Krok 5 · Expozice</div>
+<div class="q">Kolik pozic máš otevřených?</div>
+<div class="hint">Čím více pozic, tím větší cena za předčasný TP.</div>
+<div class="options">
+<button class="option" data-value="1-2">1—2 pozice</button>
+<button class="option" data-value="2-3">2—3 pozice</button>
+<button class="option" data-value="4-5">4—5 pozic</button>
+<button class="option" data-value="6-7">6—7 pozic</button>
+<button class="option" data-value="8-9">8—9 pozic</button>
+<button class="option" data-value="10">10 pozic</button>
+</div>
+</section>
+<section class="step" data-step="6">
+<div class="step-no">Krok 6 · Důvod výstupu</div>
+<div class="q">Proč chceš právě teď vzít TP?</div>
+<div class="hint">Tady se láme disciplína.</div>
+<div class="options">
+<button class="option" data-value="rule">✅ TP podle Strategie<small>EXT → BOS; WAVE BOS; Vlna 4+ dle 123 EXT; HTFM RANGE; 120+ svíček</small></button>
+<button class="option" data-value="fear">😰 Strach<small>Bojím se, že se to otočí</small></button>
+<button class="option" data-value="second">🔀 Jeden účet jinak<small>Na druhém účtu to nechávám běžet</small></button>
+<button class="option" data-value="gut">🎲 Pocit / intuice<small>Nemám konkrétní trigger</small></button>
+</div>
+<div class="hint" style="margin-top:14px;margin-bottom:6px">Jaké emoce právě cítíš?</div>
+<textarea class="emotion-input" id="emotionInput" placeholder="Napiš co cítíš: strach, FOMO, potřeba úlevy, chaos, frustrace..."></textarea>
+</section>
+<section class="step" data-step="7">
+<div class="step-no">Krok 7 · Dual-account kontrola</div>
+<div class="q">Mají oba účty stejné TP rozhodnutí?</div>
+<div class="hint">Jeden účet nesmí sloužit jako emoční úniková levá.</div>
+<div class="options">
+<button class="option" data-value="both">✅ Ano, stejně</button>
+<button class="option" data-value="diff">⚠️ Ne, jeden chci zavřít dřív</button>
+<button class="option" data-value="single">➖ Mám jen jeden aktivní účet</button>
+</div>
+</section>
+<section class="result" id="result"></section>
+<div class="nav">
+<button class="btn ghost" id="backBtn">← Zpět</button>
+<button class="btn primary" id="nextBtn" disabled>Dál →</button>
+</div>
+</div>
+</div>
 <script>
-(function(){
-  const root = document.documentElement;
-  let theme = 'dark';
-  const themeBtn = document.getElementById('theme-btn');
-  function setTheme(t){
-    theme = t;
-    root.setAttribute('data-theme', t);
-    themeBtn.innerHTML = t === 'dark'
-      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
-      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-  }
-  setTheme('dark');
-  themeBtn.addEventListener('click', () => setTheme(theme === 'dark' ? 'light' : 'dark'));
-
-  const ans = {q1:null,q2:null,q3:null,q4:null,q5:null,q6:null,q7:null};
-  const evalBtn = document.getElementById('eval-btn');
-
-  document.querySelectorAll('.btn-group').forEach(g => {
-    g.querySelectorAll('.btn-opt').forEach(b => {
-      b.addEventListener('click', () => {
-        g.querySelectorAll('.btn-opt').forEach(x => x.classList.remove('sel'));
-        b.classList.add('sel');
-        ans[g.dataset.q] = b.dataset.val;
-        evalBtn.disabled = !Object.values(ans).every(v => v !== null);
-      });
-    });
-  });
-
-  evalBtn.addEventListener('click', evaluate);
-  document.getElementById('reset-btn').addEventListener('click', reset);
-
-  function evaluate(){
-    const {q1,q2,q3,q4,q5,q6,q7} = ans;
-    const actions = [];   // {label, text, tone}
-    const cl = [];        // {label, done}
-    const red = [];
-
-    // ── Q1 Canva ──
-    if(q1 === 'ANO'){
-      cl.push({l:'Canva zkontrolována', d:true});
-    } else {
-      actions.push({label:'Canva', text:'Otevři Canvu a zkontroluj co dělat v aktuální P.A.', tone:'error'});
-      cl.push({l:'Canva zkontrolována', d:false});
-      red.push('Canva');
-    }
-
-    // ── Q2 P.A. ──
-    cl.push({l:'P.A. identifikováno', d:true});
-    if(q2 === 'WAVE'){
-      actions.push({label:'P.A.: WAVE', text:'1-2 WAVE není TP. Exekuce na 4. vlně, nebo po BOS. Pozor na předchozí RANGE.', tone:'info'});
-    } else if(q2 === 'RANGE'){
-      actions.push({label:'P.A.: RANGE', text:'HTFM RANGE TP. Trvá-li RANGE dlouho, obchoduje se i v něm.', tone:'info'});
-    } else if(q2 === 'EXT'){
-      actions.push({label:'P.A.: EXT', text:'⚠️ Tady máš tendence nejčastěji brát předčasné TP. Bacha! TP je až po BOS, nebo při 123 EXT. Ne dříve! Korekce v EXT jsou normální.', tone:'warning'});
-    }
-
-    // ── Q3 Vlna ──
-    cl.push({l:'Vlna spočítána', d:true});
-    if(q3 === '1'){
-      actions.push({label:'Vlna 1', text:'⚠️ NO TP', tone:'warning'});
-    } else if(q3 === '4'){
-      actions.push({label:'Vlna 4', text:'💵 Nastav TP dle 123 EXT', tone:'gold'});
-    } else if(['5','6','7','8','8+'].includes(q3)){
-      actions.push({label:'Vlna ' + q3, text:'💵 TP ob WAVE dle 123 EXT', tone:'gold'});
-    }
-    // vlna 2, 3 → žádná akce
-
-    // ── Q4 Svíčky ──
-    if(q4 === '1-24' || q4 === '25-48'){
-      actions.push({label:'Svíčky: ' + q4, text:'⚠️ Jsou-li jen 2 Vlny není TP, mimo HTFM RANGE a EXT', tone:'warning'});
-    } else if(q4 === '120+'){
-      actions.push({label:'Svíčky: 120+', text:'💵 Nastavit TP dle 123 EXT, nebo na vrchol 4/5 v RANGE', tone:'gold'});
-    }
-    // 49-120 → žádná akce
-
-    // ── Q5 TP ──
-    cl.push({l:'TP limitní příkaz nastaven', d:true});
-    // žádná akce
-
-    // ── Q6 Strategie ──
-    if(q6 === 'ANO'){
-      cl.push({l:'Strategie dodržena', d:true});
-    } else {
-      actions.push({label:'Strategie', text:'Zapiš pro růst cos udělal špatně do AI', tone:'error'});
-      cl.push({l:'Strategie dodržena', d:false});
-      red.push('Strategie');
-    }
-
-    // ── Q7 Záznam ──
-    if(q7 === 'ANO'){
-      cl.push({l:'Záznam proveden', d:true});
-    } else if(q7 === 'NE'){
-      actions.push({label:'Záznam', text:'💥 Dodělej zápis!', tone:'error'});
-      cl.push({l:'Záznam proveden', d:false});
-      red.push('Záznam');
-    } else {
-      cl.push({l:'Záznam proveden', d:true});
-    }
-
-    const isGreen = red.length === 0;
-
-    // Timestamp
-    const now = new Date();
-    document.getElementById('ts').textContent =
-      now.toLocaleDateString('cs-CZ',{weekday:'short',day:'numeric',month:'long',year:'numeric'}) +
-      ' · ' + now.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
-
-    // Verdict banner
-    const vEl = document.getElementById('verdict');
-    vEl.className = 'verdict ' + (isGreen ? 'green' : 'red');
-    document.getElementById('v-icon').textContent = isGreen ? '✅' : '❌';
-    document.getElementById('v-text').textContent = isGreen
-      ? 'GREEN — Vše v pořádku!'
-      : 'RED — ' + red.join(', ');
-
-    // Meta chips
-    document.getElementById('meta').innerHTML = [
-      ['Canva', q1==='ANO'?'✅':'❌'],
-      ['P.A.', q2],
-      ['Vlna', q3],
-      ['Svíčky', q4],
-      ['TP', q5==='ANO'?'✅':(q5==='NE'?'❌':'–')],
-    ].map(([k,v]) => `<div class="meta-chip">${k}: <strong>${v}</strong></div>`).join('');
-
-    // Action items
-    const actionsWrap = document.getElementById('actions-wrap');
-    const actionList = document.getElementById('action-list');
-    if(actions.length > 0){
-      actionList.innerHTML = actions.map(a =>
-        `<div class="action-item ${a.tone}">
-          <div>
-            <span class="action-label">${a.label}</span>
-            <span class="action-text">${a.text}</span>
-          </div>
-        </div>`
-      ).join('');
-      actionsWrap.style.display = '';
-    } else {
-      actionsWrap.style.display = 'none';
-    }
-
-    // Checklist
-    document.getElementById('checklist').innerHTML = cl
-      .map(i => `<div class="cl-row ${i.d?'done':'fail'}">
-        <span class="cl-icon">${i.d?'✔':'✘'}</span>
-        <span>${i.l}</span>
-      </div>`).join('');
-
-    // Show result
-    document.getElementById('form-card').style.display = 'none';
-    const rc = document.getElementById('result-card');
-    rc.classList.add('vis');
-    document.getElementById('checklist-card').style.display = '';
-    document.getElementById('reset-btn').style.display = '';
-    rc.scrollIntoView({behavior:'smooth', block:'start'});
-  }
-
-  function reset(){
-    Object.keys(ans).forEach(k => ans[k] = null);
-    document.querySelectorAll('.btn-opt').forEach(b => b.classList.remove('sel'));
-    evalBtn.disabled = true;
-    document.getElementById('form-card').style.display = '';
-    document.getElementById('result-card').classList.remove('vis');
-    document.getElementById('checklist-card').style.display = 'none';
-    document.getElementById('reset-btn').style.display = 'none';
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
-})();
-</script>
-</body>
-</html>
+const state={1:null,2:null,3:null,4:null,5:null,6:null,7:null};
+let current=1;
+const total=7;
+const steps=document.querySelectorAll('.step');
+const result=document.getElementById('result');
+const backBtn=document.getElementById('backBtn');
+const nextBtn=document.getElementById('nextBtn');
+const progressFill=document.getElementById('progressFill');
+const progressLabel=document.getElementById('progressLabel');
+const progressPct=document.getElementById('progressPct');
+const waveGrid=document.getElementById('waveGrid');
+[1,2,3,4,5,6,7,8,'8+'].forEach(v=>{
+const b=document.createElement('button');
+b.className='pill';b.textContent=v;b.dataset.value=v;
+b.addEventListener('click',()=>selectValue('3',v,b));
+waveGrid.appendChild(b);
+});
+document.querySelectorAll('.step .option').forEach(btn=>{
+const step=btn.closest('.step').dataset.step;
+btn.addEventListener('click',()=>selectValue(step,btn.dataset.value,btn));
+});
+function selectValue(step,val,btn){
+state[step]=val;
+const parent=btn.closest('.step')||btn.closest('section');
+parent.querySelectorAll('.option,.pill').forEach(x=>x.classList.remove('selected'));
+btn.classList.add('selected');
+nextBtn.disabled=false;
+if(step==='7') nextBtn.textContent='Vyhodnotit \u2192';
+}
+function showStep(n){
+steps.forEach(s=>s.classList.remove('active'));
+result.classList.remove('active');
+const stepEl=document.querySelector('.step[data-step="'+n+'"]');
+if(stepEl){stepEl.classList.add('active');current=n;}
+backBtn.style.visibility=n===1?'hidden':'visible';
+nextBtn.textContent=n===7?'Vyhodnotit \u2192':'D\u00e1l \u2192';
+nextBtn.disabled=!state[n];
+const pct=Math.round(((n-1)/total)*100);
+progressFill.style.width=pct+'%';
+progressLabel.textContent='Krok '+n+' z '+total;
+progressPct.textContent=pct+'%';
+}
+function evaluate(){
+steps.forEach(s=>s.classList.remove('active'));
+result.classList.add('active');
+progressFill.style.width='100%';
+progressLabel.textContent='Hotovo';
+progressPct.textContent='100%';
+backBtn.style.visibility='visible';
+nextBtn.textContent='Znovu \u21bb';
+nextBtn.disabled=false;
+const pa=state[1],bos=state[2],wave=state[3],candles=state[4],positions=state[5],reason=state[6],dual=state[7];
+const emotion=document.getElementById('emotionInput').value.trim();
+let status='green';
+if(bos==='yes'){status='green';}
+else{
+if(reason==='fear'||reason==='second'||reason==='gut') status='red';
+if(pa==='EXT'&&reason!=='rule') status='red';
+if(wave==='1') status='red';
+if(candles==='1-48'&&(wave==='1'||wave==='2')&&pa!=='EXT') status='red';
+if(status!=='red'&&dual==='diff') status='yellow';
+}
+let title='\u2705 Br\u00e1t TP';
+let text='V\u00fdstup odpov\u00edd\u00e1 pravidl\u016fm a nevid\u00edm jasn\u00fd emo\u010dn\u00ed z\u00e1sah.';
+if(status==='red'){title='\ud83d\uded1 Nebrat TP';text='Tady je vysok\u00e1 \u0161ance, \u017ee jde o p\u0159ed\u010dasn\u00fd nebo emo\u010dn\u00ed v\u00fdstup.';}
+if(status==='yellow'){title='\u26a0\ufe0f Pozor';text='Ne\u017e TP vezme\u0161, sjednoj rozhodnut\u00ed na obou \u00fa\u010dtech a zkontroluj d\u016fvod v\u00fdstupu.';}
+if(bos==='yes'){title='\u2705 Br\u00e1t TP \u2014 BOS';text='Do\u0161lo k BOS. Ber TP v\u0161e okam\u017eit\u011b dle strategie.';status='green';}
+let alerts='';
+if(reason==='fear') alerts+='<div class="alert red"><strong>\ud83e\udde0 Emo\u010dn\u00ed trigger: strach</strong>Strach z oto\u010den\u00ed trhu nen\u00ed strategick\u00fd d\u016fvod pro TP.</div>';
+if(reason==='second') alerts+='<div class="alert red"><strong>\u26a0\ufe0f Asymetrie mezi \u00fa\u010dty</strong>Jeden \u00fa\u010det nesm\u00ed fungovat jako psychologick\u00e1 berlika.</div>';
+if(reason==='gut') alerts+='<div class="alert red"><strong>\ud83c\udfb2 V\u00fdstup podle pocitu</strong>Pokud nen\u00ed konkr\u00e9tn\u00ed trigger, TP neber.</div>';
+if(pa==='EXT'&&reason!=='rule') alerts+='<div class="alert red"><strong>\ud83d\ude80 EXT varovn\u00ed</strong>V EXT je p\u0159ed\u010dasn\u00fd TP tvoje nejdra\u017e\u0161\u00ed chyba.</div>';
+if((positions==='4-5'||positions==='6-7'||positions==='8-9'||positions==='10')&&reason!=='rule') alerts+='<div class="alert red"><strong>\ud83d\udd254+ pozic v trhu</strong>Tady nen\u00ed ztr\u00e1ta mal\u00e1. Ka\u017ed\u00fd p\u0159ed\u010dasn\u00fd TP m\u00e1 n\u00e1sobn\u00fd dopad.</div>';
+if(dual==='diff') alerts+='<div class="alert yellow"><strong>\ud83d\udd00 Dual-account kontrola</strong>Nejd\u0159\u00edv srovnej oba \u00fa\u010dty na stejn\u00e9 rozhodnut\u00ed.</div>';
+let emotionAdvice='';
+if(emotion){
+const el=emotion.toLowerCase();
+let tips=[];
+if(el.includes('strach')||el.includes('boj')) tips.push('Strach je norm\u00e1ln\u00ed, ale nen\u00ed d\u016fvod pro TP. Zav\u0159i chart na 5 minut a vra\u0165 se.');
+if(el.includes('fomo')||el.includes('ute')) tips.push('FOMO nen\u00ed strategie. P\u0159ipome\u0148 si: lep\u0161\u00ed \u017e\u00e1dn\u00fd trade ne\u017e \u0161patn\u00fd trade.');
+if(el.includes('\u00falev')||el.includes('klid')) tips.push('Pot\u0159eba \u00falevy = emo\u010dn\u00ed \u00fanik. Poloz telefon, nad\u00fdchej se 3x a zkontroluj strategii.');
+if(el.includes('chaos')||el.includes('zmat')) tips.push('Chaos v hlav\u011b = \u0161patn\u00e9 rozhodov\u00e1n\u00ed. STOP. Nedot\u00fdkej se TP, dokud se neuklidn\u00ed\u0161.');
+if(el.includes('frustrace')||el.includes('na\u0161tv')) tips.push('Frustrace je nebezpe\u010dn\u00e1. Frustrovan\u00fd trader d\u011bl\u00e1 impulzivn\u00ed rozhodnut\u00ed.');
+if(el.includes('eufori')||el.includes('super')) tips.push('Euforie je stejn\u011b nebezpe\u010dn\u00e1 jako strach. Dr\u017e se pravidel.');
+if(tips.length===0) tips.push('Zaznamenal jsem tvoje emoce. Zkontroluj, jestli neovliv\u0148uj\u00ed tvoje rozhodnut\u00ed.');
+emotionAdvice='<div class="emotion-result"><h3>Co d\u011blat s aktu\u00e1ln\u00edmi emocemi</h3>'+tips.map(t=>'<div class="emotion-tip">'+t+'</div>').join('')+'</div>';
+}
+const labels={1:'P.A. typ',2:'BOS',3:'Vlna',4:'Sv\u00ed\u010dky',5:'Pozice',6:'D\u016fvod v\u00fdstupu',7:'Oba \u00fa\u010dty stejn\u011b?'};
+const map={rule:'TP podle Strategie',fear:'Strach',second:'Jeden \u00fa\u010det jinak',gut:'Pocit / intuice',both:'Ano',diff:'Ne',single:'Jeden \u00fa\u010det',yes:'Ano',no:'Ne'};
+const summary=[1,2,3,4,5,6,7].map(i=>'<div class="line"><span>'+labels[i]+'</span><b>'+(map[state[i]]||state[i])+'</b></div>').join('');
+let rules='';
+if(pa==='WAVE') rules+='<div class="line"><span>WAVE pravidlo</span><b>TP hlavn\u011b na vln\u011b 4+ dle strategie</b></div>';
+if(pa==='EXT') rules+='<div class="line"><span>EXT pravidlo</span><b>Bez p\u0159ed\u010dasn\u00e9ho TP. \u010cekej BOS.</b></div>';
+if(pa==='RANGE') rules+='<div class="line"><span>RANGE pravidlo</span><b>TP dle hran range</b></div>';
+if(candles==='120+') rules+='<div class="line"><span>120+ sv\u00ed\u010dek</span><b>Aktivn\u00ed pozdn\u00ed f\u00e1ze trendu / 123 EXT</b></div>';
+if(!rules) rules='<div class="line"><span>Kontext</span><b>Standardn\u00ed TP kontrola</b></div>';
+const now=new Date();
+const ts=now.toLocaleDateString('cs-CZ')+' '+now.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
+const journal='--- TP Journal ---\n'+ts+'\nP.A.: '+pa+'\nBOS: '+bos+'\nVlna: '+wave+'\nSv\u00ed\u010dky: '+candles+'\nPozice: '+positions+'\nD\u016fvod: '+(map[reason]||reason)+'\nEmoce: '+(emotion||'-')+'\nDual: '+(map[dual]||dual)+'\nVERDIKT: '+title;
+result.innerHTML='<div class="verdict '+status+'"><div class="big">'+title+'</div><div class="msg">'+text+'</div></div>'+alerts+emotionAdvice+'<div class="box"><h3>Vypl\u0148\u011bn\u00e1 tabulka</h3>'+summary+'</div><div class="box"><h3>Co te\u010f d\u011blat</h3>'+rules+'</div><div class="footer-note">Pravidlo zvyku: bez vypln\u011bn\u00ed checklistu se TP neupravuje.</div><div class="actions"><button class="btn ghost" onclick="copyJournal()">\ud83d\udccb Kop\u00edrovat do journalu</button></div><pre class="code-box" id="journalBox" style="white-space:pre-wrap">'+journal.replace(/</g,'&lt;')+'</pre>';
+}
+function copyJournal(){
+const t=document.getElementById('journalBox').textContent;
+navigator.clipboard.writeText(t).then(()=>alert('Zkop\u00edrov\u00e1no do schr\u00e1nky!'));
+}
+backBtn.addEventListener('click',()=>{
+if(result.classList.contains('active')){showStep(7);return;}
+if(current>1) showStep(current-1);
+});
+nextBtn.addEventListener('click',()=>{
+if(result.classList.contains('active')){
+Object.keys(state).forEach(k=>state[k]=null);
+document.querySelectorAll('.selected').forEach(x=>x.classList.remove('selected'));
+document.getElementById('emotionInput').value='';
+showStep(1);return;
+}
+if(current<7) showStep(current+1);
+else evaluate();
+});
+document.getElementById('themeBtn').addEventListener('click',()=>{
+const html=document.documentElement;
+html.setAttribute('data-theme',html.getAttribute('data-theme')==='dark'?'light':'dark');
+});
+showStep(1);
+<\/script>
+<\/body>
+<\/html>
